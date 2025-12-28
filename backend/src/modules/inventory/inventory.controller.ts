@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { InventoryService } from './inventory.service';
+import { IInventoryHistory } from './inventory.model';
 import { createInventoryItemSchema, updateInventoryItemSchema } from './inventory.schema';
 import { successResponse, errorResponse } from '../../utils/response.util';
 import { z } from 'zod';
@@ -66,7 +67,28 @@ export class InventoryController {
         try {
             const { id } = request.params as { id: string };
             const history = await InventoryService.getHistory(id);
-            return reply.code(200).send(successResponse(history, 'Inventory history retrieved successfully'));
+            return reply.code(200).send(successResponse<IInventoryHistory[]>(history, 'Inventory history retrieved successfully'));
+        } catch (error) {
+            return InventoryController.handleError(error, reply);
+        }
+    }
+
+    static async getAlerts(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const filter = request.query as any;
+            const alerts = await InventoryService.getAlerts(filter);
+            return reply.code(200).send(successResponse(alerts, 'Inventory alerts retrieved successfully'));
+        } catch (error) {
+            return InventoryController.handleError(error, reply);
+        }
+    }
+
+    static async resolveAlert(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const user = (request as any).user as RequestUser;
+            const { id } = request.params as { id: string };
+            const alert = await InventoryService.resolveAlert(id, user.userId);
+            return reply.code(200).send(successResponse(alert, 'Alert resolved successfully'));
         } catch (error) {
             return InventoryController.handleError(error, reply);
         }

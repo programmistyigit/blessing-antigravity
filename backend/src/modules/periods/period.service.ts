@@ -42,7 +42,13 @@ export class PeriodService {
      * - status = CLOSED
      * - endDate = now
      */
-    static async closePeriod(periodId: string): Promise<IPeriod> {
+    /**
+     * Close a period
+     * - status = CLOSED
+     * - endDate = now
+     * - finalize salary expenses (Base Salary -> PeriodExpense)
+     */
+    static async closePeriod(periodId: string, userId: string): Promise<IPeriod> {
         const period = await Period.findById(periodId);
         if (!period) {
             throw new Error('Period not found');
@@ -52,7 +58,8 @@ export class PeriodService {
             throw new Error('Period is already closed');
         }
 
-        // STRICT RULE: Cannot close period with active batches
+        // 1. STRICT RULE: Cannot close period with ACTIVE batches
+        // (Jojalar hali bor bo'lsa yopib bo'lmaydi)
         const { Batch, BatchStatus } = await import('../sections/batch.model');
         const activeBatchCount = await Batch.countDocuments({
             periodId: period._id,
@@ -62,19 +69,8 @@ export class PeriodService {
             throw new Error('Cannot close period with active batches');
         }
 
-        // STRICT RULE: Cannot close period with incomplete chick-outs
-        const { ChickOut, ChickOutStatus } = await import('../sections/chick-out.model');
-        const periodBatches = await Batch.find({ periodId: period._id });
-        const batchIds = periodBatches.map(b => b._id);
-        const incompleteCount = await ChickOut.countDocuments({
-            batchId: { $in: batchIds },
-            status: ChickOutStatus.INCOMPLETE
-        });
-        if (incompleteCount > 0) {
-            throw new Error('Cannot close period: there are incomplete chick-outs. Please complete all chick-outs before closing the period.');
-        }
-
-        // STRICT RULE: Cannot close period with unresolved expense incidents
+        // 2. Unresolved expense incidents (BLOCKING)
+        // (Moliyaviy hal qilinmagan nosozliklar)
         const { TechnicalIncident } = await import('../assets/incident.model');
         const sectionIds = period.sections.map(s => s.toString());
         if (sectionIds.length > 0) {
@@ -88,10 +84,25 @@ export class PeriodService {
             }
         }
 
+        // 3. Finalize Salary Expenses
+        // (Create PeriodExpense for remaining base salaries)
+        const { SalaryService } = await import('../salary/salary.service');
+        await SalaryService.finalizeSalaryExpenses(periodId, userId);
+
+        // 4. Close Period
         period.status = PeriodStatus.CLOSED;
         period.endDate = new Date();
 
         await period.save();
+
+        // 5. Emit Event
+        const { emitPeriodClosed } = await import('../../realtime/events');
+        emitPeriodClosed({
+            periodId,
+            closedBy: userId,
+            timestamp: period.endDate.toISOString(),
+        });
+
         return period;
     }
 

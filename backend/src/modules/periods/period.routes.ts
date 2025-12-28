@@ -39,4 +39,9 @@ export async function periodRoutes(fastify: FastifyInstance) {
     fastify.get('/periods/:id/expenses', {
         preHandler: [authMiddleware, requirePermission(Permission.PERIOD_VIEW)],
     }, PeriodController.getExpenses as any);
+
+    // Get P&L for all sections in a period
+    fastify.get('/periods/:id/sections/pl', {
+        preHandler: [authMiddleware, requirePermission(Permission.PERIOD_VIEW)],
+    }, PeriodController.getAllSectionsPL as any);
 }

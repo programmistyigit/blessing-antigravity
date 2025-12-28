@@ -30,6 +30,7 @@ export enum RealtimeEvent {
     INVENTORY_ITEM_REMOVED = 'inventory_item_removed',
     INVENTORY_ALERT_MIN_THRESHOLD = 'inventory_alert_min_threshold',
     INVENTORY_ALERT_MAX_THRESHOLD = 'inventory_alert_max_threshold',
+    INVENTORY_LOW_STOCK = 'inventory_low_stock',
 
     // Health events (Phase 12)
     DISEASE_CREATED = 'disease_created',
@@ -58,6 +59,22 @@ export enum RealtimeEvent {
     SECTION_STATUS_CHANGED = 'section_status_changed',
     DELEGATION_ACTIVATED = 'delegation_activated',
     DELEGATION_DEACTIVATED = 'delegation_deactivated',
+
+    // Salary events
+    SALARY_ADVANCE_GIVEN = 'salary_advance_given',
+    SALARY_BONUS_GIVEN = 'salary_bonus_given',
+    SALARY_EXPENSE_FINALIZED = 'salary_expense_finalized',
+
+    // Feed, Utility, Price events
+    FEED_DELIVERY_RECORDED = 'feed_delivery_recorded',
+    UTILITY_COST_RECORDED = 'utility_cost_recorded',
+    PRICE_CHANGED = 'price_changed',
+
+    // Financial events
+    EXPENSE_CREATED = 'expense_created',
+    PERIOD_PL_UPDATED = 'period_pl_updated',
+    SECTION_PL_UPDATED = 'section_pl_updated',
+    PERIOD_CLOSED = 'period_closed',
 
     // System events
     SYSTEM_NOTIFICATION = 'system_notification',
@@ -196,6 +213,15 @@ export function emitInventoryThresholdAlert(eventId: string, itemData: any): voi
     socketManager.broadcastToChannel('system:*', eventId, itemData);
 }
 
+export function emitInventoryLowStock(alertData: any): void {
+    const channel = 'system:inventory:*';
+    socketManager.broadcastToChannel(channel, RealtimeEvent.INVENTORY_LOW_STOCK, alertData);
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.INVENTORY_LOW_STOCK, alertData);
+    if (alertData.sectionId) {
+        socketManager.broadcastToChannel(`section:${alertData.sectionId}`, RealtimeEvent.INVENTORY_LOW_STOCK, alertData);
+    }
+}
+
 
 export function emitDiseaseCreated(data: any): void {
     socketManager.broadcastToChannel(`section:${data.sectionId}`, RealtimeEvent.DISEASE_CREATED, data);
@@ -303,3 +329,57 @@ export function emitDelegationDeactivated(data: any): void {
     socketManager.broadcastToChannel('system:*', RealtimeEvent.DELEGATION_DEACTIVATED, data);
 }
 
+// Salary events
+export function emitSalaryAdvanceGiven(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.SALARY_ADVANCE_GIVEN, data);
+}
+
+export function emitSalaryBonusGiven(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.SALARY_BONUS_GIVEN, data);
+}
+
+// Feed, Utility, Price events
+export function emitFeedDeliveryRecorded(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.FEED_DELIVERY_RECORDED, data);
+    if (data.sectionId) {
+        socketManager.broadcastToChannel(`section:${data.sectionId}`, RealtimeEvent.FEED_DELIVERY_RECORDED, data);
+    }
+}
+
+export function emitUtilityCostRecorded(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.UTILITY_COST_RECORDED, data);
+    if (data.sectionId) {
+        socketManager.broadcastToChannel(`section:${data.sectionId}`, RealtimeEvent.UTILITY_COST_RECORDED, data);
+    }
+}
+
+export function emitPriceChanged(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.PRICE_CHANGED, data);
+}
+
+// === Financial Events ===
+export function emitSalaryExpenseFinalized(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.SALARY_EXPENSE_FINALIZED, data);
+}
+
+export function emitExpenseCreated(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.EXPENSE_CREATED, data);
+    if (data.sectionId) {
+        socketManager.broadcastToChannel(`section:${data.sectionId}`, RealtimeEvent.EXPENSE_CREATED, data);
+    }
+}
+
+export function emitPeriodPLUpdated(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.PERIOD_PL_UPDATED, data);
+}
+
+export function emitSectionPLUpdated(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.SECTION_PL_UPDATED, data);
+    if (data.sectionId) {
+        socketManager.broadcastToChannel(`section:${data.sectionId}`, RealtimeEvent.SECTION_PL_UPDATED, data);
+    }
+}
+
+export function emitPeriodClosed(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.PERIOD_CLOSED, data);
+}

@@ -70,5 +70,15 @@ export async function sectionRoutes(fastify: FastifyInstance) {
     fastify.patch('/chick-outs/:id/complete', {
         preHandler: [authMiddleware, requirePermission(Permission.CHICKOUT_COMPLETE)],
     }, ChickOutController.completeChickOut as any);
+
+    // SECTION P&L
+    fastify.get('/sections/:id/pl', {
+        preHandler: [authMiddleware, requirePermission(Permission.SECTION_VIEW)],
+    }, SectionController.getSectionPL as any);
+
+    // SECTION ANALYTICS (Period-level)
+    fastify.get('/periods/:id/sections/analytics', {
+        preHandler: [authMiddleware, requirePermission(Permission.PERIOD_VIEW)],
+    }, SectionController.getPeriodAnalytics as any);
 }
 

@@ -3,6 +3,7 @@ import { PeriodService } from './period.service';
 import { PeriodExpenseService } from './period-expense.service';
 import { ExpenseCategory } from './period-expense.model';
 import { createPeriodSchema, updatePeriodSchema } from './period.schema';
+import { SectionPLService } from '../sections/section-pl.service';
 
 /**
  * Period Controller
@@ -51,8 +52,9 @@ export class PeriodController {
     ) {
         try {
             const { id } = request.params;
+            const user = request.user as any;
 
-            const period = await PeriodService.closePeriod(id);
+            const period = await PeriodService.closePeriod(id, user.id);
 
             return reply.status(200).send({
                 success: true,
@@ -202,6 +204,31 @@ export class PeriodController {
             return reply.status(400).send({
                 success: false,
                 error: error.message || 'Failed to get expenses',
+            });
+        }
+    }
+
+    /**
+     * GET /api/periods/:id/sections/pl
+     * Get P&L for all sections in a period
+     */
+    static async getAllSectionsPL(
+        request: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        try {
+            const { id } = request.params;
+
+            const sectionsPL = await SectionPLService.getAllSectionsPLForPeriod(id);
+
+            return reply.status(200).send({
+                success: true,
+                data: sectionsPL,
+            });
+        } catch (error: any) {
+            return reply.status(400).send({
+                success: false,
+                error: error.message || 'Failed to get sections P&L',
             });
         }
     }

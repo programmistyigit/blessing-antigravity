@@ -15,6 +15,8 @@ export interface IPeriodPL {
     totalExpenses: number;
     profit: number;          // revenue - expenses
     isProfitable: boolean;   // profit > 0
+    warnings?: string[];     // Non-blocking warnings
+    isRevenueComplete: boolean; // true if no INCOMPLETE ChickOuts
 }
 
 /**
@@ -29,7 +31,7 @@ export class PeriodPLService {
      * 
      * Qoidalar:
      * 1. Period mavjud bo'lishi shart
-     * 2. INCOMPLETE ChickOut bo'lsa → BLOKLANGAN
+     * 2. INCOMPLETE ChickOut bo'lsa → WARNING (BLOKLAMAYMIZ)
      * 3. Xarajatsiz requiresExpense=true Incident bo'lsa → BLOKLANGAN
      * 4. Daromad yo'q bo'lsa → 0 (ERROR EMAS)
      * 5. Xarajat yo'q bo'lsa → 0 (ERROR EMAS)
@@ -41,11 +43,14 @@ export class PeriodPLService {
             throw new Error('Period not found');
         }
 
+        const warnings: string[] = [];
+        let isRevenueComplete = true;
+
         // 2. Get all batches for this period
         const batches = await Batch.find({ periodId });
         const batchIds = batches.map(b => b._id);
 
-        // 3. Safety Guard #1: Check for INCOMPLETE ChickOuts
+        // 3. Check for INCOMPLETE ChickOuts (WARNING only, not blocking)
         if (batchIds.length > 0) {
             const incompleteChickOutCount = await ChickOut.countDocuments({
                 batchId: { $in: batchIds },
@@ -53,11 +58,12 @@ export class PeriodPLService {
             });
 
             if (incompleteChickOutCount > 0) {
-                throw new Error('Davrda yakunlanmagan moliyaviy operatsiyalar mavjud.');
+                warnings.push(`${incompleteChickOutCount} ta yakunlanmagan chiqish mavjud. Daromad to'liq emas.`);
+                isRevenueComplete = false;
             }
         }
 
-        // 4. Safety Guard #2: Check for unresolved expense incidents
+        // 4. Safety Guard #2: Check for unresolved expense incidents (BLOCKING)
         // Query sections that are assigned to this period via activePeriodId
         const { Section } = await import('../sections/section.model');
         const assignedSections = await Section.find({ activePeriodId: period._id });
@@ -71,7 +77,7 @@ export class PeriodPLService {
             });
 
             if (unresolvedExpenseIncidents > 0) {
-                throw new Error('Davrda yakunlanmagan moliyaviy operatsiyalar mavjud.');
+                throw new Error('Davrda xarajat yozilmagan texnik nosozliklar mavjud.');
             }
         }
 
@@ -96,6 +102,8 @@ export class PeriodPLService {
             totalExpenses,
             profit,
             isProfitable,
+            warnings: warnings.length > 0 ? warnings : undefined,
+            isRevenueComplete,
         };
     }
 

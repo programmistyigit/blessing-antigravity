@@ -15,6 +15,11 @@ import { dashboardRoutes } from './modules/dashboard/dashboard.routes';
 import { periodRoutes } from './modules/periods/period.routes';
 import { assetRoutes } from './modules/assets/asset.routes';
 import { incidentRoutes } from './modules/assets/incident.routes';
+import { forecastRoutes } from './modules/forecast/forecast.routes';
+import { salaryRoutes } from './modules/salary/salary.routes';
+import { feedRoutes } from './modules/feed/feed.routes';
+import { utilityRoutes } from './modules/utility/utility.routes';
+import { priceRoutes } from './modules/prices/price-history.routes';
 import { setupWebSocket } from './realtime/websocket.routes';
 import { languageHook } from './middlewares/language.middleware';
 import config from './core/config';
@@ -58,6 +63,11 @@ async function startApplication() {
         await fastify.register(periodRoutes, { prefix: '/api' });
         await fastify.register(assetRoutes, { prefix: '/api' });
         await fastify.register(incidentRoutes, { prefix: '/api' });
+        await fastify.register(forecastRoutes, { prefix: '/api' });
+        await fastify.register(salaryRoutes, { prefix: '/api' });
+        await fastify.register(feedRoutes, { prefix: '/api' });
+        await fastify.register(utilityRoutes, { prefix: '/api' });
+        await fastify.register(priceRoutes, { prefix: '/api' });
 
         // Setup WebSocket
         await setupWebSocket(fastify);

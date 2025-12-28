@@ -7,6 +7,7 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 export enum ExpenseCategory {
     ELECTRICITY = 'ELECTRICITY',           // Elektr energiya
     WATER = 'WATER',                       // Suv
+    FEED = 'FEED',                         // Yem xarajati
     LABOR_FIXED = 'LABOR_FIXED',           // Oylik ishchilar
     LABOR_DAILY = 'LABOR_DAILY',           // Kunlik ishchilar
     MAINTENANCE = 'MAINTENANCE',           // Ta'mirlash

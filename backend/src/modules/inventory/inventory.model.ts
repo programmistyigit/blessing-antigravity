@@ -8,6 +8,11 @@ export enum InventoryCategory {
     OTHER = 'OTHER',
 }
 
+export enum InventoryType {
+    FARM = 'FARM',
+    KITCHEN = 'KITCHEN',
+}
+
 export interface IInventoryItem extends Document {
     name: string;
     category: InventoryCategory;
@@ -15,6 +20,8 @@ export interface IInventoryItem extends Document {
     unit: string;
     minThreshold: number;
     maxThreshold?: number;
+    inventoryType: InventoryType;
+    alertEnabled: boolean;
     lastUpdatedBy: Types.ObjectId;
     lastUpdatedAt: Date;
     createdAt: Date;
@@ -61,6 +68,16 @@ const inventoryItemSchema = new Schema<IInventoryItem>(
             default: Date.now,
         },
         isActive: {
+            type: Boolean,
+            default: true,
+        },
+        inventoryType: {
+            type: String,
+            enum: Object.values(InventoryType),
+            default: InventoryType.FARM,
+            required: true,
+        },
+        alertEnabled: {
             type: Boolean,
             default: true,
         },

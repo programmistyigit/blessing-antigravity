@@ -1,0 +1,7 @@
+﻿
+> poultry-factory-backend@1.0.0 build
+> tsc
+
+src/modules/forecast/forecast-pl.service.ts(3,20): error TS6133: 'ChickOutStatus' is declared but its value is never read.
+src/modules/forecast/forecast-pl.service.ts(391,15): error TS6133: 'remainingCost' is declared but its value is never read.
+src/modules/forecast/forecast-pl.service.ts(399,15): error TS6133: 'simulatedProfit' is declared but its value is never read.

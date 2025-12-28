@@ -1,6 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { SectionService } from './section.service';
 import { ReportService } from './report.service';
+import { SectionPLService } from './section-pl.service';
+import { SectionInsightService } from './section-insight.service';
 import { createSectionSchema, updateSectionSchema, assignWorkersSchema, assignPeriodSchema } from './section.schema';
 import { createReportSchema, updateReportSchema } from './report.schema';
 import { successResponse, errorResponse } from '../../utils/response.util';
@@ -168,6 +170,32 @@ export class SectionController {
             const reports = await ReportService.getReportsBySectionId(sectionId);
 
             return reply.code(200).send(successResponse(reports, 'Reports retrieved successfully'));
+        } catch (error) {
+            return SectionController.handleError(error, reply);
+        }
+    }
+
+    // --- SECTION P&L HANDLER ---
+
+    static async getSectionPL(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { id } = request.params as { id: string };
+            const pl = await SectionPLService.getSectionPL(id);
+
+            return reply.code(200).send(successResponse(pl, 'Section P&L retrieved successfully'));
+        } catch (error) {
+            return SectionController.handleError(error, reply);
+        }
+    }
+
+    // --- SECTION ANALYTICS HANDLER ---
+
+    static async getPeriodAnalytics(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { id: periodId } = request.params as { id: string };
+            const analytics = await SectionInsightService.getPeriodAnalytics(periodId);
+
+            return reply.code(200).send(successResponse(analytics, 'Section analytics retrieved successfully'));
         } catch (error) {
             return SectionController.handleError(error, reply);
         }

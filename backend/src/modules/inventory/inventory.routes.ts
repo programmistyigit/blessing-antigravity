@@ -24,4 +24,12 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
     fastify.get('/inventory/:id/history', {
         preHandler: [authMiddleware, requirePermission(Permission.INVENTORY_READ)],
     }, InventoryController.getHistory);
+
+    fastify.get('/inventory/alerts', {
+        preHandler: [authMiddleware, requirePermission(Permission.INVENTORY_ALERT_VIEW)],
+    }, InventoryController.getAlerts);
+
+    fastify.patch('/inventory/alerts/:id/resolve', {
+        preHandler: [authMiddleware, requirePermission(Permission.INVENTORY_ALERT_RESOLVE)],
+    }, InventoryController.resolveAlert);
 }
