@@ -21,6 +21,8 @@ interface CreateMedicationData {
     dateGiven: string;
     medicationName: string;
     dose: string;
+    quantityUsed?: number;        // Inventory dan ayiriladigan miqdor
+    unitCost?: number;            // Bir birlik narxi
     givenToChicks: number;
     effectiveness?: MedicationEffectiveness;
     notes?: string;
@@ -103,47 +105,106 @@ export class HealthService {
     // --- MEDICATION MANAGEMENT ---
 
     static async createMedication(data: CreateMedicationData): Promise<IMedication> {
-        const section = await Section.findById(data.sectionId);
-        if (!section) throw new Error('Section not found');
-        if (section.status !== SectionStatus.ACTIVE) throw new Error('Cannot add medication record to inactive section');
+        const mongoose = await import('mongoose');
+        const session = await mongoose.default.startSession();
+        session.startTransaction();
 
-        const medication = new Medication({
-            ...data,
-            dateGiven: new Date(data.dateGiven),
-        });
-        await medication.save();
+        try {
+            const section = await Section.findById(data.sectionId).session(session);
+            if (!section) throw new Error('Section not found');
+            if (section.status !== SectionStatus.ACTIVE) throw new Error('Cannot add medication record to inactive section');
 
-        emitMedicationCreated(medication);
+            // Find inventory item for this medication
+            const inventoryItem = await InventoryItem.findOne({
+                name: new RegExp(`^${data.medicationName}$`, 'i'),
+                category: InventoryCategory.MEDICINE,
+                isActive: true
+            }).session(session);
 
-        // Inventory Check
-        // Try to find inventory item with same name
-        const inventoryItem = await InventoryItem.findOne({
-            name: new RegExp(`^${data.medicationName}$`, 'i'), // Case insensitive match
-            category: InventoryCategory.MEDICINE,
-            isActive: true
-        });
+            let expenseId = null;
+            let quantityUsed = data.quantityUsed;
+            let unitCost = data.unitCost;
 
-        if (inventoryItem) {
-            // Check if stock is low (alert logic only, consumption is manual in Phase 11/12 via Inventory API usually, 
-            // unless we auto-deduct. Prompt didn't strictly say auto-deduct, but "medication_alert_low_stock if minThreshold reached".
-            // Since we aren't deducting here (dose is string e.g. "10ml", unit in inventory could be "Liters"), 
-            // exact deduction is hard without unit conversion.
-            // We'll just check current stock vs threshold.
+            // If quantityUsed provided and inventory exists → deduct from inventory
+            if (quantityUsed && quantityUsed > 0 && inventoryItem) {
+                if (inventoryItem.quantity < quantityUsed) {
+                    throw new Error(`Omborda yetarli dori yo'q. Mavjud: ${inventoryItem.quantity} ${inventoryItem.unit}`);
+                }
 
-            if (inventoryItem.quantity <= inventoryItem.minThreshold) {
-                emitHealthAlert(RealtimeEvent.MEDICATION_ALERT_LOW_STOCK, {
-                    sectionId: section._id,
-                    medicationId: medication._id,
-                    medicationName: medication.medicationName,
-                    currentStock: inventoryItem.quantity,
-                    minThreshold: inventoryItem.minThreshold,
-                    message: `⚠️ Low Stock Alert: Medication ${inventoryItem.name} is low (${inventoryItem.quantity} ${inventoryItem.unit})`,
-                    severity: 'warning'
-                });
+                // Deduct from inventory
+                inventoryItem.quantity -= quantityUsed;
+                inventoryItem.lastUpdatedAt = new Date();
+                await inventoryItem.save({ session });
+
+                // Create expense if section has active period
+                if (section.activePeriodId && unitCost && unitCost > 0) {
+                    const { PeriodExpense, ExpenseCategory } = await import('../periods/period-expense.model');
+                    const totalCost = quantityUsed * unitCost;
+
+                    const [expense] = await PeriodExpense.create([{
+                        periodId: section.activePeriodId,
+                        category: ExpenseCategory.MEDICINE,
+                        amount: totalCost,
+                        quantity: quantityUsed,
+                        unitCost: unitCost,
+                        description: `Dori sarfi: ${data.medicationName} - ${quantityUsed} ${inventoryItem.unit}`,
+                        expenseDate: new Date(data.dateGiven),
+                        sectionId: data.sectionId,
+                        source: 'MANUAL',
+                        createdBy: data.createdBy,
+                    }], { session });
+
+                    expenseId = expense._id;
+                }
             }
-        }
 
-        return medication;
+            // Create medication record
+            const medication = new Medication({
+                sectionId: data.sectionId,
+                dateGiven: new Date(data.dateGiven),
+                medicationName: data.medicationName,
+                dose: data.dose,
+                quantityUsed: quantityUsed || null,
+                unitCost: unitCost || null,
+                givenToChicks: data.givenToChicks,
+                effectiveness: data.effectiveness || 'UNKNOWN',
+                notes: data.notes || '',
+                expenseId: expenseId,
+                createdBy: data.createdBy,
+            });
+            await medication.save({ session });
+
+            await session.commitTransaction();
+
+            // Emit events after successful commit
+            emitMedicationCreated(medication);
+
+            // Emit inventory consumption event
+            if (quantityUsed && quantityUsed > 0 && inventoryItem) {
+                const { emitInventoryItemUpdated } = await import('../../realtime/events');
+                emitInventoryItemUpdated(inventoryItem);
+
+                // Check low stock alert
+                if (inventoryItem.quantity <= inventoryItem.minThreshold) {
+                    emitHealthAlert(RealtimeEvent.MEDICATION_ALERT_LOW_STOCK, {
+                        sectionId: section._id,
+                        medicationId: medication._id,
+                        medicationName: medication.medicationName,
+                        currentStock: inventoryItem.quantity,
+                        minThreshold: inventoryItem.minThreshold,
+                        message: `⚠️ Low Stock Alert: ${inventoryItem.name} (${inventoryItem.quantity} ${inventoryItem.unit})`,
+                        severity: 'warning'
+                    });
+                }
+            }
+
+            return medication;
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
     }
 
     static async updateMedication(id: string, data: Partial<CreateMedicationData>): Promise<IMedication> {

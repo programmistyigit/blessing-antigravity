@@ -156,3 +156,61 @@ salaryBonusSchema.index({ employeeId: 1, periodId: 1 });
 salaryBonusSchema.index({ periodId: 1 });
 
 export const SalaryBonus = mongoose.model<ISalaryBonus>('SalaryBonus', salaryBonusSchema);
+
+/**
+ * Employee Debt - Over-advance qarz hisobi
+ * Agar totalAdvances > baseSalary bo'lsa, qarz yoziladi
+ * Bu qarz davrlar orasida saqlanadi va kelajakdagi davrda hisobga olinadi
+ */
+export interface IEmployeeDebt extends Document {
+    employeeId: Types.ObjectId;
+    fromPeriodId: Types.ObjectId;     // Qaysi davrda paydo bo'ldi
+    amount: number;                    // Qarz miqdori (har doim musbat)
+    remainingAmount: number;           // Qolgan qarz (to'langan summa ayirilgan)
+    isSettled: boolean;               // To'liq to'landimi
+    settledInPeriodId?: Types.ObjectId; // Qaysi davrda to'landi
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const employeeDebtSchema = new Schema<IEmployeeDebt>(
+    {
+        employeeId: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        fromPeriodId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Period',
+            required: true,
+        },
+        amount: {
+            type: Number,
+            required: true,
+            min: [0, 'Debt amount cannot be negative'],
+        },
+        remainingAmount: {
+            type: Number,
+            required: true,
+            min: [0, 'Remaining amount cannot be negative'],
+        },
+        isSettled: {
+            type: Boolean,
+            default: false,
+        },
+        settledInPeriodId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Period',
+            default: null,
+        },
+    },
+    {
+        timestamps: true,
+    }
+);
+
+employeeDebtSchema.index({ employeeId: 1, isSettled: 1 });
+employeeDebtSchema.index({ fromPeriodId: 1 });
+
+export const EmployeeDebt = mongoose.model<IEmployeeDebt>('EmployeeDebt', employeeDebtSchema);

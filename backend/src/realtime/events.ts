@@ -74,6 +74,7 @@ export enum RealtimeEvent {
     EXPENSE_CREATED = 'expense_created',
     PERIOD_PL_UPDATED = 'period_pl_updated',
     SECTION_PL_UPDATED = 'section_pl_updated',
+    PERIOD_CREATED = 'period_created',
     PERIOD_CLOSED = 'period_closed',
 
     // System events
@@ -378,6 +379,10 @@ export function emitSectionPLUpdated(data: any): void {
     if (data.sectionId) {
         socketManager.broadcastToChannel(`section:${data.sectionId}`, RealtimeEvent.SECTION_PL_UPDATED, data);
     }
+}
+
+export function emitPeriodCreated(data: any): void {
+    socketManager.broadcastToChannel('system:*', RealtimeEvent.PERIOD_CREATED, data);
 }
 
 export function emitPeriodClosed(data: any): void {

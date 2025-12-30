@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { z } from 'zod';
 import { PeriodService } from './period.service';
 import { PeriodExpenseService } from './period-expense.service';
 import { ExpenseCategory } from './period-expense.model';
@@ -10,6 +11,52 @@ import { SectionPLService } from '../sections/section-pl.service';
  * CRUD endpoints for Period management
  */
 export class PeriodController {
+    /**
+     * Centralized error handler for proper HTTP status codes
+     */
+    private static handleError(error: unknown, reply: FastifyReply) {
+        if (error instanceof z.ZodError) {
+            return reply.status(400).send({
+                success: false,
+                error: 'Validation failed',
+                details: error.errors,
+            });
+        }
+        if (error instanceof Error) {
+            // 404 - Not Found
+            if (error.message.includes('not found') || error.message.includes('topilmadi')) {
+                return reply.status(404).send({
+                    success: false,
+                    error: error.message,
+                });
+            }
+            // 409 - Conflict (already exists, already closed)
+            if (error.message.includes('already') || error.message.includes('mavjud')) {
+                return reply.status(409).send({
+                    success: false,
+                    error: error.message,
+                });
+            }
+            // 403 - Forbidden (permission, cannot close)
+            if (error.message.includes('Cannot') || error.message.includes('bo\'lmaydi')) {
+                return reply.status(403).send({
+                    success: false,
+                    error: error.message,
+                });
+            }
+            // Default to 400 for business logic errors
+            return reply.status(400).send({
+                success: false,
+                error: error.message,
+            });
+        }
+        console.error('Unhandled error:', error);
+        return reply.status(500).send({
+            success: false,
+            error: 'Internal server error',
+        });
+    }
+
     /**
      * POST /api/periods
      * Create a new period
@@ -34,11 +81,8 @@ export class PeriodController {
                 success: true,
                 data: period,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to create period',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -54,17 +98,14 @@ export class PeriodController {
             const { id } = request.params;
             const user = request.user as any;
 
-            const period = await PeriodService.closePeriod(id, user.id);
+            const period = await PeriodService.closePeriod(id, user.userId);
 
             return reply.status(200).send({
                 success: true,
                 data: period,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to close period',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -83,11 +124,8 @@ export class PeriodController {
                 success: true,
                 data: periods,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to get periods',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -115,11 +153,8 @@ export class PeriodController {
                 success: true,
                 data: period,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to get period',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -141,11 +176,8 @@ export class PeriodController {
                 success: true,
                 data: period,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to update period',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -175,11 +207,8 @@ export class PeriodController {
                 success: true,
                 data: expense,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to add expense',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -200,11 +229,8 @@ export class PeriodController {
                 success: true,
                 data: expenses,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to get expenses',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 
@@ -225,11 +251,8 @@ export class PeriodController {
                 success: true,
                 data: sectionsPL,
             });
-        } catch (error: any) {
-            return reply.status(400).send({
-                success: false,
-                error: error.message || 'Failed to get sections P&L',
-            });
+        } catch (error) {
+            return PeriodController.handleError(error, reply);
         }
     }
 }

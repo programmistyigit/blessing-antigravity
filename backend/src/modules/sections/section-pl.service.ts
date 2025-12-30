@@ -1,6 +1,8 @@
+import mongoose from 'mongoose';
 import { Section } from './section.model';
 import { Batch } from './batch.model';
 import { ChickOut, ChickOutStatus } from './chick-out.model';
+import { SectionDailyReport } from './report.model';
 import { PeriodExpense } from '../periods/period-expense.model';
 import { TechnicalIncident } from '../assets/incident.model';
 
@@ -102,32 +104,42 @@ export class SectionPLService {
         }
 
         // 6. Calculate Expenses for this section
+        const sectionObjectId = new mongoose.Types.ObjectId(section._id.toString());
         const expenseResult = await PeriodExpense.aggregate([
-            { $match: { sectionId: section._id } },
+            { $match: { sectionId: sectionObjectId } },
             { $group: { _id: null, total: { $sum: '$amount' } } }
         ]);
         const totalExpenses = expenseResult.length > 0 ? expenseResult[0].total : 0;
 
         // 7. Calculate chick counts for metrics
         let totalChicksIn = 0;
-        let totalDeaths = 0;
         for (const batch of batches) {
             totalChicksIn += batch.totalChicksIn || 0;
-            // Note: deaths would come from daily reports aggregation
-            // For now using batch.totalChicksOut for sold count
+        }
+
+        // Aggregate deaths from DailyReports
+        let totalDeaths = 0;
+        if (batchIds.length > 0) {
+            const deathsResult = await SectionDailyReport.aggregate([
+                { $match: { batchId: { $in: batchIds } } },
+                { $group: { _id: null, total: { $sum: '$deaths' } } }
+            ]);
+            totalDeaths = deathsResult.length > 0 ? deathsResult[0].total : 0;
         }
 
         const soldChicks = totalChicksOut;
-        const aliveChicks = totalChicksIn - soldChicks - totalDeaths;
+        const aliveChicks = Math.max(0, totalChicksIn - soldChicks - totalDeaths);
 
         // 8. Calculate profit and metrics
         const profit = totalRevenue - totalExpenses;
         const isProfitable = profit > 0;
 
-        // Corrected metrics with null for division by zero
+        // Corrected metrics with edge cases:
+        // All metrics return null when denominator is 0 for consistency
+        // Frontend can distinguish between "no data" (null) and "zero value" (0)
         const metrics: ISectionPLMetrics = {
-            costPerAliveChick: aliveChicks > 0
-                ? Math.round((totalExpenses / aliveChicks) * 100) / 100
+            costPerAliveChick: totalChicksIn > 0
+                ? Math.round((totalExpenses / totalChicksIn) * 100) / 100
                 : null,
             revenuePerSoldChick: soldChicks > 0
                 ? Math.round((totalRevenue / soldChicks) * 100) / 100
@@ -153,10 +165,22 @@ export class SectionPLService {
 
     /**
      * Get P&L for all sections in a period
+     * Uses Batch.periodId for historical data (not Section.activePeriodId)
      */
     static async getAllSectionsPLForPeriod(periodId: string): Promise<ISectionPL[]> {
-        // Get all sections assigned to this period
-        const sections = await Section.find({ activePeriodId: periodId });
+        const mongoose = await import('mongoose');
+        const periodObjectId = new mongoose.Types.ObjectId(periodId);
+
+        // Find all batches for this period → then get unique sectionIds
+        const batches = await Batch.find({ periodId: periodObjectId });
+        const sectionIds = [...new Set(batches.map(b => b.sectionId.toString()))];
+
+        if (sectionIds.length === 0) {
+            return [];
+        }
+
+        // Get sections
+        const sections = await Section.find({ _id: { $in: sectionIds } });
 
         const results: ISectionPL[] = [];
         const errors: string[] = [];

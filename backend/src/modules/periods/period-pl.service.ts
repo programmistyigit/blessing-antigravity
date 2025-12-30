@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Period } from './period.model';
 import { PeriodRevenueService } from './period-revenue.service';
 import { PeriodExpense } from './period-expense.model';
@@ -86,8 +87,9 @@ export class PeriodPLService {
         const totalRevenue = revenueAggregation.totalRevenue;
 
         // 6. Get total expenses using aggregation
+        const periodObjectId = new mongoose.Types.ObjectId(period._id.toString());
         const expenseResult = await PeriodExpense.aggregate([
-            { $match: { periodId: period._id } },
+            { $match: { periodId: periodObjectId } },
             { $group: { _id: null, total: { $sum: '$amount' } } }
         ]);
         const totalExpenses = expenseResult.length > 0 ? expenseResult[0].total : 0;

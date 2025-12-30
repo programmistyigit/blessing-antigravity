@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { PeriodExpense, IPeriodExpense, ExpenseCategory } from './period-expense.model';
 import { Period, PeriodStatus } from './period.model';
 
@@ -76,6 +77,8 @@ export class PeriodExpenseService {
         const totals: Record<ExpenseCategory, number> = {
             [ExpenseCategory.ELECTRICITY]: 0,
             [ExpenseCategory.WATER]: 0,
+            [ExpenseCategory.FEED]: 0,
+            [ExpenseCategory.MEDICINE]: 0,
             [ExpenseCategory.LABOR_FIXED]: 0,
             [ExpenseCategory.LABOR_DAILY]: 0,
             [ExpenseCategory.MAINTENANCE]: 0,
@@ -97,7 +100,7 @@ export class PeriodExpenseService {
      */
     static async getTotalExpenses(periodId: string): Promise<number> {
         const result = await PeriodExpense.aggregate([
-            { $match: { periodId: periodId } },
+            { $match: { periodId: new mongoose.Types.ObjectId(periodId) } },
             { $group: { _id: null, total: { $sum: '$amount' } } }
         ]);
         return result.length > 0 ? result[0].total : 0;

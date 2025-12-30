@@ -1,5 +1,6 @@
 import { SectionDailyReport, ISectionDailyReport } from './report.model';
 import { Section, SectionStatus } from './section.model';
+import { Batch } from './batch.model';
 import { SectionReportAudit } from './report-audit.model';
 import { DailyBalanceService } from './daily-balance.service';
 import { emitDailyReportCreated, emitDailyReportUpdated } from '../../realtime/events';
@@ -200,7 +201,12 @@ export class ReportService {
             throw new Error('Report not found');
         }
 
-        const section = await Section.findById((report as any).sectionId || (report as any).batchId);
+        // Get section via batch (report has batchId, not sectionId)
+        const batch = await Batch.findById(report.batchId);
+        if (!batch) {
+            throw new Error('Batch not found for this report');
+        }
+        const section = await Section.findById(batch.sectionId);
         if (section && section.status === SectionStatus.CLEANING) {
             throw new Error('Cannot update report for a CLEANING section');
         }
@@ -266,10 +272,10 @@ export class ReportService {
         if (hasChanges) {
             await report.save();
 
-            // Save Audit
+            // Save Audit (use batchId for sectionId field - legacy naming)
             await SectionReportAudit.create({
                 reportId: report._id,
-                sectionId: (report as any).sectionId || (report as any).batchId,
+                sectionId: report.batchId,
                 changedBy: userId,
                 previousValues,
                 newValues,
@@ -282,6 +288,15 @@ export class ReportService {
     }
 
     static async getReportsBySectionId(sectionId: string): Promise<ISectionDailyReport[]> {
-        return SectionDailyReport.find({ sectionId }).sort({ date: -1 });
+        // Reports are stored by batchId, not sectionId
+        // Find all batches for this section and get their reports
+        const batches = await Batch.find({ sectionId });
+        const batchIds = batches.map(b => b._id);
+
+        if (batchIds.length === 0) {
+            return [];
+        }
+
+        return SectionDailyReport.find({ batchId: { $in: batchIds } }).sort({ date: -1 });
     }
 }

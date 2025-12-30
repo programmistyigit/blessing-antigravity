@@ -24,9 +24,12 @@ export interface IMedication extends Document {
     dateGiven: Date;
     medicationName: string;
     dose: string;
+    quantityUsed?: number;        // Sarflangan miqdor (Inventory unit da)
+    unitCost?: number;            // Bir birlik narxi (so'm)
     givenToChicks: number;
     effectiveness: MedicationEffectiveness;
     notes: string;
+    expenseId?: Types.ObjectId;   // Bog'langan xarajat
     createdBy: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
@@ -95,6 +98,14 @@ const medicationSchema = new Schema<IMedication>(
             type: String,
             required: true,
         },
+        quantityUsed: {
+            type: Number,
+            default: null,
+        },
+        unitCost: {
+            type: Number,
+            default: null,
+        },
         givenToChicks: {
             type: Number,
             required: true,
@@ -108,6 +119,11 @@ const medicationSchema = new Schema<IMedication>(
         notes: {
             type: String,
             default: '',
+        },
+        expenseId: {
+            type: Schema.Types.ObjectId,
+            ref: 'PeriodExpense',
+            default: null,
         },
         createdBy: {
             type: Schema.Types.ObjectId,

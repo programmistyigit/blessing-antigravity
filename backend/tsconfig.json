@@ -22,7 +22,8 @@
         "noFallthroughCasesInSwitch": true
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "tests/e2e/e2e-business-test.ts"
     ],
     "exclude": [
         "node_modules",

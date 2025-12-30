@@ -322,10 +322,10 @@ export class SalaryService {
 
                 // Remaining to expense = baseSalary - advances
                 const remainingToExpense = salary.baseSalary - totalAdvances;
+                const employeeName = (salary.employeeId as any)?.fullName || 'Unknown';
 
                 if (remainingToExpense > 0) {
-                    const employeeName = (salary.employeeId as any)?.fullName || 'Unknown';
-
+                    // Normal case: remaining salary to be expensed
                     await PeriodExpense.create([{
                         periodId,
                         category: ExpenseCategory.LABOR_FIXED,
@@ -339,6 +339,22 @@ export class SalaryService {
 
                     count++;
                     totalAmount += remainingToExpense;
+                } else if (remainingToExpense < 0) {
+                    // Over-advance case: employee owes money
+                    // Create EmployeeDebt record
+                    const { EmployeeDebt } = await import('./salary.model');
+                    const debtAmount = Math.abs(remainingToExpense);
+
+                    await EmployeeDebt.create([{
+                        employeeId: salary.employeeId,
+                        fromPeriodId: periodId,
+                        amount: debtAmount,
+                        remainingAmount: debtAmount,
+                        isSettled: false,
+                    }], { session });
+
+                    // Log for tracking
+                    console.log(`[SALARY] Over-advance detected: ${employeeName} owes ${debtAmount} so'm`);
                 }
             }
 

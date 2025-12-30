@@ -34,6 +34,16 @@ export class PeriodService {
         });
 
         await period.save();
+
+        // Emit WebSocket event
+        const { emitPeriodCreated } = await import('../../realtime/events');
+        emitPeriodCreated({
+            periodId: period._id.toString(),
+            name: period.name,
+            status: period.status,
+            startDate: period.startDate.toISOString(),
+        });
+
         return period;
     }
 

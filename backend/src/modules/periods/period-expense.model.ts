@@ -8,6 +8,7 @@ export enum ExpenseCategory {
     ELECTRICITY = 'ELECTRICITY',           // Elektr energiya
     WATER = 'WATER',                       // Suv
     FEED = 'FEED',                         // Yem xarajati
+    MEDICINE = 'MEDICINE',                 // Dori-darmon
     LABOR_FIXED = 'LABOR_FIXED',           // Oylik ishchilar
     LABOR_DAILY = 'LABOR_DAILY',           // Kunlik ishchilar
     MAINTENANCE = 'MAINTENANCE',           // Ta'mirlash
