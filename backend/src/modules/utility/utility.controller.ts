@@ -19,7 +19,7 @@ export class UtilityController {
 
             if (!Object.values(UtilityType).includes(type)) {
                 return reply.status(400).send({
-                    error: 'type must be WATER or ELECTRICITY'
+                    error: 'type must be WATER, ELECTRICITY, or GAS'
                 });
             }
 

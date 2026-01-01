@@ -24,6 +24,7 @@ export class BatchController {
             }
 
             const batch = await BatchService.createBatch({
+                name: result.data.name,
                 sectionId: result.data.sectionId,
                 startedAt: result.data.startedAt ? new Date(result.data.startedAt) : undefined,
                 expectedEndAt: new Date(result.data.expectedEndAt),
@@ -82,6 +83,20 @@ export class BatchController {
         try {
             const { id } = request.params as { id: string };
             const batches = await BatchService.getBatchesBySectionId(id);
+            return reply.send(successResponse(batches));
+        } catch (error: any) {
+            return reply.code(400).send(errorResponse(error.message));
+        }
+    }
+
+    /**
+     * GET /api/batches
+     * Get all batches (with optional status filter)
+     */
+    static async getAllBatches(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { status } = request.query as { status?: string };
+            const batches = await BatchService.getAllBatches(status as any);
             return reply.send(successResponse(batches));
         } catch (error: any) {
             return reply.code(400).send(errorResponse(error.message));

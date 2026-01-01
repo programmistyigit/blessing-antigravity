@@ -13,6 +13,7 @@ export const createReportSchema = z.object({
     feedUsedKg: z.number().min(0),
     waterUsedLiters: z.number().min(0),
     electricityUsedKwh: z.number().min(0),
+    gasM3: z.number().min(0).optional().nullable(),
     medicines: z.array(medicineSchema).optional().default([]),
     note: z.string().optional().default(''),
 });
@@ -24,6 +25,7 @@ export const updateReportSchema = z.object({
     feedUsedKg: z.number().min(0).optional(),
     waterUsedLiters: z.number().min(0).optional(),
     electricityUsedKwh: z.number().min(0).optional(),
+    gasM3: z.number().min(0).optional().nullable(),
     medicines: z.array(medicineSchema).optional(),
     note: z.string().optional(),
 });

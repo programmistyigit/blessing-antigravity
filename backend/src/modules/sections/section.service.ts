@@ -17,6 +17,7 @@ interface UpdateSectionData {
     expectedEndDate?: string | null;
     assignedWorkers?: string[];
     isArchived?: boolean;
+    activePeriodId?: string | null;
 }
 
 export class SectionService {
@@ -61,6 +62,9 @@ export class SectionService {
         if (data.chickArrivalDate !== undefined) section.chickArrivalDate = data.chickArrivalDate ? new Date(data.chickArrivalDate) : null;
         if (data.expectedEndDate !== undefined) section.expectedEndDate = data.expectedEndDate ? new Date(data.expectedEndDate) : null;
         if (data.assignedWorkers) section.assignedWorkers = data.assignedWorkers.map(id => new Types.ObjectId(id));
+        if (data.activePeriodId !== undefined) {
+            section.activePeriodId = data.activePeriodId ? new Types.ObjectId(data.activePeriodId) : undefined;
+        }
         if (data.isArchived !== undefined) section.isArchived = data.isArchived;
 
         await section.save();

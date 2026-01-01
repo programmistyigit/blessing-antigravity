@@ -9,6 +9,7 @@ export const createRoleSchema = z.object({
     permissions: z.array(z.nativeEnum(Permission)),
     canCreateUsers: z.boolean().default(false),
     canCreateRoles: z.boolean().default(false),
+    baseSalary: z.number().min(0).default(0),
 });
 
 export type CreateRoleRequest = z.infer<typeof createRoleSchema>;
@@ -21,6 +22,7 @@ export const updateRoleSchema = z.object({
     permissions: z.array(z.nativeEnum(Permission)).optional(),
     canCreateUsers: z.boolean().optional(),
     canCreateRoles: z.boolean().optional(),
+    baseSalary: z.number().min(0).optional(),
 });
 
 export type UpdateRoleRequest = z.infer<typeof updateRoleSchema>;

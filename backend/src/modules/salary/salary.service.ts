@@ -6,7 +6,7 @@ import { emitSalaryAdvanceGiven, emitSalaryBonusGiven, emitSalaryExpenseFinalize
 
 interface CreateSalaryData {
     employeeId: string;
-    baseSalary: number;
+    baseSalary?: number; // Optional - fallback to role.baseSalary
     periodId: string;
     sectionId?: string;
 }
@@ -51,8 +51,8 @@ export class SalaryService {
      * One salary per employee per period (unique constraint)
      */
     static async createSalary(data: CreateSalaryData): Promise<IEmployeeSalary> {
-        // Validate employee exists
-        const employee = await User.findById(data.employeeId);
+        // Validate employee exists and populate role
+        const employee = await User.findById(data.employeeId).populate('role');
         if (!employee) {
             throw new Error('Employee not found');
         }
@@ -66,9 +66,16 @@ export class SalaryService {
             throw new Error('Salary already exists for this employee in this period');
         }
 
+        // Determine baseSalary: use provided value or fallback to role.baseSalary
+        let baseSalary = data.baseSalary;
+        if (baseSalary === undefined || baseSalary === null) {
+            const role = employee.role as any;
+            baseSalary = role?.baseSalary ?? 0;
+        }
+
         const salary = new EmployeeSalary({
             employeeId: data.employeeId,
-            baseSalary: data.baseSalary,
+            baseSalary,
             periodId: data.periodId,
             sectionId: data.sectionId || null,
         });

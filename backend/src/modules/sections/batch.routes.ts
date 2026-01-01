@@ -16,6 +16,11 @@ export async function batchRoutes(fastify: FastifyInstance) {
         preHandler: [authMiddleware, requirePermission(Permission.BATCH_CLOSE)],
     }, BatchController.closeBatch as any);
 
+    // Get all batches (with optional status filter)
+    fastify.get('/batches', {
+        preHandler: [authMiddleware, requirePermission(Permission.SECTION_VIEW)],
+    }, BatchController.getAllBatches as any);
+
     // Get batch by ID
     fastify.get('/batches/:id', {
         preHandler: [authMiddleware, requirePermission(Permission.SECTION_VIEW)],

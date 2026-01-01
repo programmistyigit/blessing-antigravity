@@ -1,0 +1,120 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "search": "Search",
+        "filter": "Filter",
+        "actions": "Actions",
+        "status": "Status",
+        "date": "Date",
+        "name": "Name",
+        "description": "Description",
+        "submit": "Submit",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "close": "Close",
+        "confirm": "Confirm",
+        "yes": "Yes",
+        "no": "No"
+    },
+    "landing": {
+        "title": "Blessing",
+        "subtitle": "Poultry Factory Management System",
+        "hero": {
+            "title": "Honesty. Discipline. Growth.",
+            "description": "Professional poultry factory management system. Every worker is a family member.",
+            "cta": "Worker Login"
+        },
+        "values": {
+            "title": "Our Values",
+            "honesty": {
+                "title": "Honesty",
+                "description": "Every action is based on honesty and transparency"
+            },
+            "discipline": {
+                "title": "Discipline",
+                "description": "Order and discipline are the keys to success"
+            },
+            "growth": {
+                "title": "Growth",
+                "description": "Gaining new knowledge and experience every day"
+            },
+            "family": {
+                "title": "Family",
+                "description": "We are one big family, stronger together"
+            }
+        },
+        "stats": {
+            "workers": "Workers",
+            "sections": "Sections",
+            "experience": "Years Experience"
+        }
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "username": "Username",
+        "password": "Password",
+        "rememberMe": "Remember me",
+        "forgotPassword": "Forgot password?",
+        "loginError": "Invalid username or password",
+        "loginSuccess": "Successfully logged in!",
+        "logoutSuccess": "Successfully logged out!",
+        "sessionExpired": "Session expired. Please log in again.",
+        "workerLogin": {
+            "title": "Worker Login",
+            "subtitle": "Sign in to your account"
+        },
+        "directorLogin": {
+            "title": "Control Panel",
+            "subtitle": "Secure director access"
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "welcome": "Welcome",
+        "overview": "Overview",
+        "sections": "Sections",
+        "periods": "Periods",
+        "reports": "Reports",
+        "kpi": {
+            "totalSections": "Total Sections",
+            "activeBatches": "Active Batches",
+            "totalChicks": "Total Chicks",
+            "dailyMortality": "Daily Mortality",
+            "revenue": "Revenue",
+            "expenses": "Expenses",
+            "profit": "Profit"
+        }
+    },
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "sections": "Sections",
+        "periods": "Periods",
+        "inventory": "Inventory",
+        "employees": "Employees",
+        "reports": "Reports",
+        "settings": "Settings"
+    },
+    "theme": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    },
+    "language": {
+        "uz": "O'zbek",
+        "en": "English",
+        "ru": "Русский"
+    },
+    "pwa": {
+        "install": "Install App",
+        "installPrompt": "Install the app on your phone for faster access"
+    }
+}

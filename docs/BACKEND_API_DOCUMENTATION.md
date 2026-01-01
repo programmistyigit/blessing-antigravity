@@ -208,7 +208,8 @@ Yangi rol yaratish.
   "name": string,                    // min: 2, max: 50
   "permissions": Permission[],       // Kamida bitta permission
   "canCreateUsers": boolean,         // default: false
-  "canCreateRoles": boolean          // default: false
+  "canCreateRoles": boolean,         // default: false
+  "baseSalary": number               // default: 0, min: 0 - lavozim oyligi
 }
 ```
 

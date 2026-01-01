@@ -5,6 +5,7 @@ import { DailyBalanceService } from './daily-balance.service';
 import { emitBatchStarted, emitBatchClosed, emitSectionStatusChanged } from '../../realtime/events';
 
 interface CreateBatchData {
+    name: string;
     sectionId: string;
     startedAt?: Date;
     expectedEndAt: Date;
@@ -53,6 +54,7 @@ export class BatchService {
 
         // Create the batch
         const batch = new Batch({
+            name: data.name,
             sectionId: data.sectionId,
             periodId: periodId,
             startedAt: data.startedAt || new Date(),
@@ -106,6 +108,15 @@ export class BatchService {
             throw new Error('Cannot close batch: incomplete chick-outs exist for this section. Please complete all chick-outs first.');
         }
 
+        // STRICT RULE: Must have at least one COMPLETED chick-out OR all chicks are dead
+        const completedChickOutCount = await ChickOut.countDocuments({
+            batchId: batch._id,
+            status: ChickOutStatus.COMPLETE
+        });
+        if (completedChickOutCount === 0 && batch.totalChicksIn > 0) {
+            throw new Error('Cannot close batch: no chick-outs have been completed. At least one chick-out must be done before closing.');
+        }
+
         // STRICT RULE: Cannot close batch with unresolved expense incidents
         const { TechnicalIncident } = await import('../assets/incident.model');
         const unresolvedExpenseIncidents = await TechnicalIncident.countDocuments({
@@ -150,6 +161,16 @@ export class BatchService {
      */
     static async getBatchesBySectionId(sectionId: string): Promise<IBatch[]> {
         return Batch.find({ sectionId }).sort({ startedAt: -1 });
+    }
+
+    /**
+     * Get all batches (with optional status filter)
+     */
+    static async getAllBatches(status?: BatchStatus): Promise<IBatch[]> {
+        const query = status ? { status } : {};
+        return Batch.find(query)
+            .populate('sectionId', 'name status')
+            .sort({ startedAt: -1 });
     }
 
     /**

@@ -4,6 +4,7 @@ import { z } from 'zod';
  * Create Batch Schema
  */
 export const createBatchSchema = z.object({
+    name: z.string().min(1, 'Batch name is required').max(100),
     sectionId: z.string().min(1, 'Section ID is required'),
     startedAt: z.string().datetime().optional(),
     expectedEndAt: z.string().datetime(),

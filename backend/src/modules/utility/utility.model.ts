@@ -6,6 +6,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export enum UtilityType {
     WATER = 'WATER',
     ELECTRICITY = 'ELECTRICITY',
+    GAS = 'GAS',
 }
 
 /**

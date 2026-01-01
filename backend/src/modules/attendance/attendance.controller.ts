@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AttendanceService } from './attendance.service';
+import { CompanyService } from '../company/company.service';
 import { createAttendanceSchema, updateAttendanceSchema, gpsUpdateSchema } from './attendance.schema';
 import { successResponse, errorResponse } from '../../utils/response.util';
 import { z } from 'zod';
@@ -16,10 +17,23 @@ export class AttendanceController {
             const { id: sectionId } = request.params as { id: string };
             const validatedData = createAttendanceSchema.parse(request.body);
 
+            // Check if user location is within company allowed radius
+            let isFake = validatedData.isFake || false;
+            if (validatedData.location) {
+                const locationCheck = await CompanyService.isWithinAllowedRadius(
+                    validatedData.location.lat,
+                    validatedData.location.lng
+                );
+                if (!locationCheck.allowed) {
+                    isFake = true; // Mark as fake if outside allowed radius
+                }
+            }
+
             const attendance = await AttendanceService.checkIn({
                 ...validatedData,
                 userId: user.userId,
                 sectionId,
+                isFake,
             });
 
             return reply.code(201).send(successResponse(attendance, 'Check-in successful'));

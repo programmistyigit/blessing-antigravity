@@ -18,6 +18,7 @@ export interface IBatchDailyReport extends Document {
     feedUsedKg: number;
     waterUsedLiters: number;
     electricityUsedKwh: number;
+    gasM3?: number;  // Optional - gaz sarfi (m³)
     medicines: IMedicine[];
     notes?: string;
     createdBy: Types.ObjectId;
@@ -70,6 +71,12 @@ const reportSchema = new Schema<IBatchDailyReport>(
             type: Number,
             required: true,
             min: 0,
+        },
+        gasM3: {
+            type: Number,
+            required: false,
+            min: 0,
+            default: null,
         },
         medicines: [medicineSchema],
         notes: {

@@ -14,6 +14,7 @@ export const updateSectionSchema = z.object({
     expectedEndDate: z.string().datetime().nullable().optional(),
     assignedWorkers: z.array(z.string()).optional(),
     isArchived: z.boolean().optional(),
+    activePeriodId: z.string().nullable().optional(),
     location: z.object({
         lat: z.number(),
         lng: z.number(),

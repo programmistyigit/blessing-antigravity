@@ -16,6 +16,7 @@ export enum BatchStatus {
  * Sexga tushgan joja guruhi
  */
 export interface IBatch extends Document {
+    name: string;
     sectionId: Types.ObjectId;
     periodId?: Types.ObjectId; // Optional link to Period
     startedAt: Date;
@@ -31,6 +32,11 @@ export interface IBatch extends Document {
 
 const batchSchema = new Schema<IBatch>(
     {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         sectionId: {
             type: Schema.Types.ObjectId,
             ref: 'Section',

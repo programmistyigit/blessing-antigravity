@@ -20,6 +20,7 @@ import { salaryRoutes } from './modules/salary/salary.routes';
 import { feedRoutes } from './modules/feed/feed.routes';
 import { utilityRoutes } from './modules/utility/utility.routes';
 import { priceRoutes } from './modules/prices/price-history.routes';
+import { companyRoutes } from './modules/company/company.routes';
 import { setupWebSocket } from './realtime/websocket.routes';
 import { languageHook } from './middlewares/language.middleware';
 import config from './core/config';
@@ -68,6 +69,7 @@ async function startApplication() {
         await fastify.register(feedRoutes, { prefix: '/api' });
         await fastify.register(utilityRoutes, { prefix: '/api' });
         await fastify.register(priceRoutes, { prefix: '/api' });
+        await fastify.register(companyRoutes, { prefix: '/api' });
 
         // Setup WebSocket
         await setupWebSocket(fastify);

@@ -1,0 +1,120 @@
+{
+    "common": {
+        "loading": "Yuklanmoqda...",
+        "error": "Xatolik yuz berdi",
+        "save": "Saqlash",
+        "cancel": "Bekor qilish",
+        "delete": "O'chirish",
+        "edit": "Tahrirlash",
+        "create": "Yaratish",
+        "search": "Qidirish",
+        "filter": "Filtr",
+        "actions": "Amallar",
+        "status": "Holat",
+        "date": "Sana",
+        "name": "Nomi",
+        "description": "Tavsif",
+        "submit": "Yuborish",
+        "back": "Orqaga",
+        "next": "Keyingi",
+        "previous": "Oldingi",
+        "close": "Yopish",
+        "confirm": "Tasdiqlash",
+        "yes": "Ha",
+        "no": "Yo'q"
+    },
+    "landing": {
+        "title": "Blessing",
+        "subtitle": "Parranda Fabrikasi Boshqaruv Tizimi",
+        "hero": {
+            "title": "Halollik. Intizom. O'sish.",
+            "description": "Professional parranda fabrikasi boshqaruv tizimi. Har bir ishchi - oilaning bir a'zosi.",
+            "cta": "Ishchi uchun kirish"
+        },
+        "values": {
+            "title": "Bizning Qadriyatlarimiz",
+            "honesty": {
+                "title": "Halollik",
+                "description": "Har bir ishimiz halollik va shaffoflik asosida"
+            },
+            "discipline": {
+                "title": "Intizom",
+                "description": "Tartib va intizom - muvaffaqiyat kaliti"
+            },
+            "growth": {
+                "title": "O'sish",
+                "description": "Har kun yangi bilim va tajriba orttirish"
+            },
+            "family": {
+                "title": "Oila",
+                "description": "Biz bir katta oilamiz, birgalikda kuchli"
+            }
+        },
+        "stats": {
+            "workers": "Ishchilar",
+            "sections": "Sexlar",
+            "experience": "Yillik tajriba"
+        }
+    },
+    "auth": {
+        "login": "Kirish",
+        "logout": "Chiqish",
+        "username": "Foydalanuvchi nomi",
+        "password": "Parol",
+        "rememberMe": "Eslab qolish",
+        "forgotPassword": "Parolni unutdingizmi?",
+        "loginError": "Noto'g'ri foydalanuvchi nomi yoki parol",
+        "loginSuccess": "Muvaffaqiyatli kirdingiz!",
+        "logoutSuccess": "Muvaffaqiyatli chiqdingiz!",
+        "sessionExpired": "Sessiya muddati tugadi. Iltimos, qayta kiring.",
+        "workerLogin": {
+            "title": "Ishchi uchun kirish",
+            "subtitle": "O'z hisobingizga kiring"
+        },
+        "directorLogin": {
+            "title": "Boshqaruv paneli",
+            "subtitle": "Direktor uchun xavfsiz kirish"
+        }
+    },
+    "dashboard": {
+        "title": "Boshqaruv paneli",
+        "welcome": "Xush kelibsiz",
+        "overview": "Umumiy ko'rinish",
+        "sections": "Sexlar",
+        "periods": "Davrlar",
+        "reports": "Hisobotlar",
+        "kpi": {
+            "totalSections": "Jami sexlar",
+            "activeBatches": "Faol partiyalar",
+            "totalChicks": "Jami jojalar",
+            "dailyMortality": "Kunlik o'lim",
+            "revenue": "Daromad",
+            "expenses": "Xarajatlar",
+            "profit": "Foyda"
+        }
+    },
+    "nav": {
+        "home": "Bosh sahifa",
+        "dashboard": "Boshqaruv",
+        "sections": "Sexlar",
+        "periods": "Davrlar",
+        "inventory": "Ombor",
+        "employees": "Xodimlar",
+        "reports": "Hisobotlar",
+        "settings": "Sozlamalar"
+    },
+    "theme": {
+        "light": "Yorug'",
+        "dark": "Qorong'i",
+        "system": "Tizim"
+    },
+    "language": {
+        "uz": "O'zbek",
+        "en": "English",
+        "ru": "Русский"
+    },
+    "pwa": {
+        "install": "Ilovani o'rnating",
+        "installPrompt": "Tezroq kirish uchun ilovani telefoningizga o'rnating"
+    }
+}

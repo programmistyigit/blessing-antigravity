@@ -6,6 +6,7 @@ export interface IRole extends Document {
     permissions: Permission[];
     canCreateUsers: boolean;
     canCreateRoles: boolean;
+    baseSalary: number;
     createdAt: Date;
 }
 
@@ -34,6 +35,11 @@ const roleSchema = new Schema<IRole>(
             type: Boolean,
             required: true,
             default: false,
+        },
+        baseSalary: {
+            type: Number,
+            default: 0,
+            min: [0, 'Base salary cannot be negative'],
         },
     },
     {
