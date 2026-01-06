@@ -2,10 +2,10 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 /**
  * Feed Delivery Interface
- * Yem yetkazib berish - xarajat faqat kelganda hisoblanadi
+ * Yem yetkazib berish - partiyaga bog'liq
  */
 export interface IFeedDelivery extends Document {
-    sectionId: Types.ObjectId;
+    batchId: Types.ObjectId;
     periodId: Types.ObjectId;
     quantityKg: number;
     pricePerKg: number;
@@ -19,9 +19,9 @@ export interface IFeedDelivery extends Document {
 
 const feedDeliverySchema = new Schema<IFeedDelivery>(
     {
-        sectionId: {
+        batchId: {
             type: Schema.Types.ObjectId,
-            ref: 'Section',
+            ref: 'Batch',
             required: true,
         },
         periodId: {
@@ -69,7 +69,7 @@ const feedDeliverySchema = new Schema<IFeedDelivery>(
 );
 
 // Indexes
-feedDeliverySchema.index({ sectionId: 1, deliveredAt: -1 });
+feedDeliverySchema.index({ batchId: 1, deliveredAt: -1 });
 feedDeliverySchema.index({ periodId: 1 });
 feedDeliverySchema.index({ deliveredAt: -1 });
 

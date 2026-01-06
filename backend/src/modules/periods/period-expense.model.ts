@@ -31,6 +31,7 @@ export interface IPeriodExpense extends Document {
     incidentId?: Types.ObjectId;   // Incident asosida yozilgan xarajat
     assetId?: Types.ObjectId;      // Qaysi uskuna uchun
     sectionId?: Types.ObjectId;    // Qaysi sex uchun
+    batchId?: Types.ObjectId;      // Qaysi partiya uchun
     quantity?: number;             // Utility uchun: litr yoki kWh miqdori
     unitCost?: number;             // Utility uchun: tarif (so'm/litr yoki so'm/kWh)
     source?: string;               // Manba: 'DAILY_REPORT' | 'MANUAL'
@@ -83,6 +84,11 @@ const periodExpenseSchema = new Schema<IPeriodExpense>(
         sectionId: {
             type: Schema.Types.ObjectId,
             ref: 'Section',
+            default: null,
+        },
+        batchId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Batch',
             default: null,
         },
         quantity: {

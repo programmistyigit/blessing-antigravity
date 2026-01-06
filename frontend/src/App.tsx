@@ -26,6 +26,7 @@ import SettingsPage from '@/pages/director/settings';
 
 // New skeleton pages
 import NewEmployeePage from '@/pages/director/employees/new';
+import EditEmployeePage from '@/pages/director/employees/edit';
 import AssignEmployeePage from '@/pages/director/employees/assign';
 import RolesPage from '@/pages/director/roles';
 import NewRolePage from '@/pages/director/roles/new';
@@ -33,6 +34,7 @@ import EditRolePage from '@/pages/director/roles/edit';
 import PermissionsPage from '@/pages/director/permissions';
 import BatchesPage from '@/pages/director/batches';
 import NewBatchPage from '@/pages/director/batches/new';
+import BatchDetailPage from '@/pages/director/batches/detail';
 import FeedInventoryPage from '@/pages/director/inventory/feed';
 import ForecastPage from '@/pages/director/forecast';
 import ComparisonPage from '@/pages/director/comparison';
@@ -113,6 +115,7 @@ function App() {
                 {/* Ishchilar */}
                 <Route path="employees" element={<EmployeesPage />} />
                 <Route path="employees/new" element={<NewEmployeePage />} />
+                <Route path="employees/:id/edit" element={<EditEmployeePage />} />
                 <Route path="employees/assign" element={<AssignEmployeePage />} />
 
                 {/* Lavozimlar */}
@@ -126,6 +129,7 @@ function App() {
                 <Route path="sections/:id" element={<SectionDetailPage />} />
                 <Route path="batches" element={<BatchesPage />} />
                 <Route path="batches/new" element={<NewBatchPage />} />
+                <Route path="batches/:id" element={<BatchDetailPage />} />
 
                 {/* Ombor */}
                 <Route path="inventory" element={<InventoryPage />} />

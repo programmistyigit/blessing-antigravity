@@ -5,27 +5,24 @@ const medicineSchema = z.object({
     dose: z.string().min(1),
 });
 
+/**
+ * Create Report Schema
+ * Faqat jo'ja holati uchun - o'lim, vazn, dori
+ */
 export const createReportSchema = z.object({
     date: z.string().datetime(),
-    avgWeight: z.number().min(0),
-    totalWeight: z.number().min(0),
     deaths: z.number().min(0),
-    feedUsedKg: z.number().min(0),
-    waterUsedLiters: z.number().min(0),
-    electricityUsedKwh: z.number().min(0),
-    gasM3: z.number().min(0).optional().nullable(),
+    avgWeight: z.number().min(0),
     medicines: z.array(medicineSchema).optional().default([]),
     note: z.string().optional().default(''),
 });
 
+/**
+ * Update Report Schema
+ */
 export const updateReportSchema = z.object({
-    avgWeight: z.number().min(0).optional(),
-    totalWeight: z.number().min(0).optional(),
     deaths: z.number().min(0).optional(),
-    feedUsedKg: z.number().min(0).optional(),
-    waterUsedLiters: z.number().min(0).optional(),
-    electricityUsedKwh: z.number().min(0).optional(),
-    gasM3: z.number().min(0).optional().nullable(),
+    avgWeight: z.number().min(0).optional(),
     medicines: z.array(medicineSchema).optional(),
     note: z.string().optional(),
 });

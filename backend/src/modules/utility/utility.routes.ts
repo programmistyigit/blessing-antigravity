@@ -25,6 +25,11 @@ export async function utilityRoutes(fastify: FastifyInstance) {
         preHandler: [requirePermission(Permission.WATER_REPORT)]
     }, UtilityController.getCostsBySection);
 
+    // Get costs by batch
+    fastify.get('/utilities/batch', {
+        preHandler: [requirePermission(Permission.WATER_REPORT)]
+    }, UtilityController.getCostsByBatch);
+
     // Get period utility summary
     fastify.get('/utilities/periods/:periodId/summary', {
         preHandler: [requirePermission(Permission.WATER_REPORT)]

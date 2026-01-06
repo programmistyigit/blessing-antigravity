@@ -8,6 +8,7 @@ export interface UserRole {
     id?: string;
     name: string;
     permissions: string[];
+    baseSalary?: number;
 }
 
 export interface User {

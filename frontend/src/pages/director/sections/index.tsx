@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Eye, RefreshCw, AlertCircle, Users as UsersIcon, Plus, Loader2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSections, useCreateSection } from '@/hooks';
+import { useSections, useCreateSection, useSectionChickOuts } from '@/hooks';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -30,6 +30,29 @@ const statusLabels: Record<string, string> = {
     PARTIAL_OUT: 'Qisman chiqarilgan',
     CLEANING: 'Tozalanmoqda',
 };
+
+// Incomplete ChickOut Badge Component
+function IncompleteChickOutBadge({ sectionId }: { sectionId: string }) {
+    const { data: chickOuts } = useSectionChickOuts(sectionId);
+    const incompleteCount = chickOuts?.filter(c => c.status === 'INCOMPLETE').length || 0;
+
+    if (incompleteCount === 0) return null;
+
+    return (
+        <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-1 -right-1 flex items-center justify-center"
+        >
+            <span className="relative flex h-5 w-5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-5 w-5 bg-red-500 items-center justify-center text-[10px] font-bold text-white">
+                    {incompleteCount}
+                </span>
+            </span>
+        </motion.div>
+    );
+}
 
 export default function SectionsPage() {
     const navigate = useNavigate();
@@ -130,8 +153,12 @@ export default function SectionsPage() {
                         <motion.div
                             key={section._id}
                             variants={itemVariants}
-                            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:shadow-md transition-shadow"
+                            className="relative bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => navigate(`/director/sections/${section._id}`)}
                         >
+                            {/* Incomplete ChickOut Badge */}
+                            <IncompleteChickOutBadge sectionId={section._id} />
+
                             <div className="flex items-start justify-between mb-3">
                                 <div>
                                     <h3 className="font-semibold text-slate-800 dark:text-slate-100">
@@ -142,7 +169,7 @@ export default function SectionsPage() {
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => navigate(`/director/sections/${section._id}`)}
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/director/sections/${section._id}`); }}
                                     className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                                 >
                                     <Eye className="h-4 w-4" />

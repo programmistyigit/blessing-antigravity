@@ -191,7 +191,13 @@ export default function BatchesPage() {
                                             {batch.status === 'ACTIVE' || batch.status === 'PARTIAL_OUT' ? 'Faol' : 'Yopilgan'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 flex items-center gap-2">
+                                        <button
+                                            onClick={() => navigate(`/director/batches/${batch._id}`)}
+                                            className="text-xs px-2 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                                        >
+                                            Ko'rish
+                                        </button>
                                         {batch.status === 'ACTIVE' && (
                                             <button
                                                 onClick={() => openCloseModal(batch._id)}

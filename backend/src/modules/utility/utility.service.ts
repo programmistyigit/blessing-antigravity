@@ -7,6 +7,7 @@ import { emitUtilityCostRecorded } from '../../realtime/events';
 interface RecordUtilityCostData {
     type: UtilityType;
     sectionId?: string;
+    batchId?: string;
     periodId: string;
     amount: number;
     quantity?: number;
@@ -49,6 +50,7 @@ export class UtilityService {
                 description,
                 expenseDate: date,
                 sectionId: data.sectionId || null,
+                batchId: data.batchId || null,
                 quantity: data.quantity,
                 unitCost: data.unitCost,
                 source: 'MANUAL',
@@ -59,6 +61,7 @@ export class UtilityService {
             const utilityCost = new UtilityCost({
                 type: data.type,
                 sectionId: data.sectionId || null,
+                batchId: data.batchId || null,
                 periodId: data.periodId,
                 amount: data.amount,
                 quantity: data.quantity,
@@ -76,6 +79,7 @@ export class UtilityService {
             emitUtilityCostRecorded({
                 type: data.type,
                 sectionId: data.sectionId || null,
+                batchId: data.batchId || null,
                 periodId: data.periodId,
                 amount: data.amount,
                 date: date.toISOString(),
@@ -109,6 +113,19 @@ export class UtilityService {
      */
     static async getCostsBySection(sectionId: string, type?: UtilityType): Promise<IUtilityCost[]> {
         const filter: any = { sectionId };
+        if (type) {
+            filter.type = type;
+        }
+        return UtilityCost.find(filter)
+            .populate('createdBy', 'fullName username')
+            .sort({ date: -1 });
+    }
+
+    /**
+     * Get costs by batch
+     */
+    static async getCostsByBatch(batchId: string, type?: UtilityType): Promise<IUtilityCost[]> {
+        const filter: any = { batchId };
         if (type) {
             filter.type = type;
         }

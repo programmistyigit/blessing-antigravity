@@ -4,10 +4,24 @@ import {
     createSection,
     updateSection,
     assignWorkersToSection,
+    getSectionPL,
     type Section,
+    type SectionPL,
     type CreateSectionPayload,
     type UpdateSectionPayload,
 } from '@/services/sections.service';
+
+/**
+ * Hook for fetching section P&L metrics
+ */
+export function useSectionPL(id: string | undefined) {
+    return useQuery<SectionPL, Error>({
+        queryKey: ['sections', id, 'pl'],
+        queryFn: () => getSectionPL(id!),
+        enabled: !!id,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+}
 
 /**
  * Hook for fetching all sections

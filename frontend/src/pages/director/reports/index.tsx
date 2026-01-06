@@ -52,9 +52,7 @@ export default function ReportsPage() {
     const [chickForm, setChickForm] = useState({
         date: new Date().toISOString().split('T')[0],
         avgWeight: '',
-        totalWeight: '',
         deaths: '',
-        feedUsedKg: '',
     });
 
     const [utilityForm, setUtilityForm] = useState({
@@ -68,9 +66,7 @@ export default function ReportsPage() {
         setChickForm({
             date: new Date().toISOString().split('T')[0],
             avgWeight: '',
-            totalWeight: '',
             deaths: '',
-            feedUsedKg: '',
         });
         setUtilityForm({
             date: new Date().toISOString().split('T')[0],
@@ -101,18 +97,14 @@ export default function ReportsPage() {
                     setError('Sex tanlang');
                     return;
                 }
-                if (!chickForm.avgWeight || !chickForm.totalWeight || !chickForm.deaths) {
+                if (!chickForm.avgWeight || !chickForm.deaths) {
                     setError("Barcha majburiy maydonlarni to'ldiring");
                     return;
                 }
                 const payload: CreateReportPayload = {
                     date: new Date(chickForm.date).toISOString(),
                     avgWeight: parseFloat(chickForm.avgWeight),
-                    totalWeight: parseFloat(chickForm.totalWeight),
                     deaths: parseInt(chickForm.deaths),
-                    feedUsedKg: parseFloat(chickForm.feedUsedKg) || 0,
-                    waterUsedLiters: 0,
-                    electricityUsedKwh: 0,
                 };
                 await createChickReport.mutateAsync({ sectionId: selectedSection, payload });
                 refetchChick();
@@ -276,7 +268,6 @@ export default function ReportsPage() {
                                 <th className="text-left text-xs font-medium text-slate-500 px-4 py-3">Sana</th>
                                 <th className="text-left text-xs font-medium text-slate-500 px-4 py-3">O'rtacha vazn</th>
                                 <th className="text-left text-xs font-medium text-slate-500 px-4 py-3">O'limlar</th>
-                                <th className="text-left text-xs font-medium text-slate-500 px-4 py-3">Yem (kg)</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -288,7 +279,6 @@ export default function ReportsPage() {
                                     </td>
                                     <td className="px-4 py-3 text-sm">{r.avgWeight} g</td>
                                     <td className="px-4 py-3 text-sm text-red-600">{r.deaths}</td>
-                                    <td className="px-4 py-3 text-sm">{r.feedUsedKg}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -355,7 +345,7 @@ export default function ReportsPage() {
 
                             {activeTab === 'chick' ? (
                                 <>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 gap-3">
                                         <div>
                                             <label className="block text-xs text-slate-600 mb-1">O'rtacha vazn (g) *</label>
                                             <input
@@ -365,17 +355,8 @@ export default function ReportsPage() {
                                                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
                                             />
                                         </div>
-                                        <div>
-                                            <label className="block text-xs text-slate-600 mb-1">Umumiy vazn (kg) *</label>
-                                            <input
-                                                type="number"
-                                                value={chickForm.totalWeight}
-                                                onChange={(e) => setChickForm({ ...chickForm, totalWeight: e.target.value })}
-                                                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
-                                            />
-                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 gap-3">
                                         <div>
                                             <label className="block text-xs text-slate-600 mb-1">O'limlar *</label>
                                             <input
@@ -383,15 +364,6 @@ export default function ReportsPage() {
                                                 min="0"
                                                 value={chickForm.deaths}
                                                 onChange={(e) => setChickForm({ ...chickForm, deaths: e.target.value })}
-                                                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-slate-600 mb-1">Yem sarfi (kg)</label>
-                                            <input
-                                                type="number"
-                                                value={chickForm.feedUsedKg}
-                                                onChange={(e) => setChickForm({ ...chickForm, feedUsedKg: e.target.value })}
                                                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
                                             />
                                         </div>

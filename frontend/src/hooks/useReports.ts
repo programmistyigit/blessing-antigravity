@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     getSectionReports,
+    getBatchReports,
     createDailyReport,
     updateDailyReport,
     type DailyReport,
@@ -13,9 +14,21 @@ import {
  */
 export function useSectionReports(sectionId: string | undefined) {
     return useQuery<DailyReport[], Error>({
-        queryKey: ['reports', sectionId],
+        queryKey: ['reports', 'section', sectionId],
         queryFn: () => getSectionReports(sectionId!),
         enabled: !!sectionId,
+        staleTime: 30 * 1000,
+    });
+}
+
+/**
+ * Hook for fetching reports for a batch
+ */
+export function useBatchReports(batchId: string | undefined) {
+    return useQuery<DailyReport[], Error>({
+        queryKey: ['reports', 'batch', batchId],
+        queryFn: () => getBatchReports(batchId!),
+        enabled: !!batchId,
         staleTime: 30 * 1000,
     });
 }
@@ -30,8 +43,9 @@ export function useCreateDailyReport() {
         mutationFn: ({ sectionId, payload }: { sectionId: string; payload: CreateReportPayload }) =>
             createDailyReport(sectionId, payload),
         onSuccess: (_data, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['reports', variables.sectionId] });
-            queryClient.invalidateQueries({ queryKey: ['sections'] });
+            queryClient.invalidateQueries({ queryKey: ['reports'] });
+            queryClient.invalidateQueries({ queryKey: ['sections', variables.sectionId] });
+            queryClient.invalidateQueries({ queryKey: ['batches'] });
         },
     });
 }

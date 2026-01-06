@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
 import { FeedDelivery, IFeedDelivery } from './feed.model';
 import { PeriodExpense, ExpenseCategory } from '../periods/period-expense.model';
+import { Batch } from '../sections/batch.model';
 import { Section } from '../sections/section.model';
 import { emitFeedDeliveryRecorded } from '../../realtime/events';
 
 interface RecordDeliveryData {
-    sectionId: string;
+    batchId: string;
     quantityKg: number;
     pricePerKg: number;
     deliveredAt?: Date;
@@ -23,8 +24,14 @@ export class FeedService {
         session.startTransaction();
 
         try {
-            // Get section and validate
-            const section = await Section.findById(data.sectionId);
+            // Get batch and validate
+            const batch = await Batch.findById(data.batchId);
+            if (!batch) {
+                throw new Error('Batch not found');
+            }
+
+            // Get section for period info
+            const section = await Section.findById(batch.sectionId);
             if (!section) {
                 throw new Error('Section not found');
             }
@@ -44,14 +51,14 @@ export class FeedService {
                 amount: totalCost,
                 description: `Yem yetkazib berish: ${data.quantityKg} kg × ${data.pricePerKg} so'm`,
                 expenseDate: deliveredAt,
-                sectionId: data.sectionId,
+                sectionId: batch.sectionId,
                 source: 'MANUAL',
                 createdBy: data.deliveredBy,
             }], { session });
 
             // Create FeedDelivery
             const delivery = new FeedDelivery({
-                sectionId: data.sectionId,
+                batchId: data.batchId,
                 periodId,
                 quantityKg: data.quantityKg,
                 pricePerKg: data.pricePerKg,
@@ -67,7 +74,7 @@ export class FeedService {
 
             // Emit WebSocket event
             emitFeedDeliveryRecorded({
-                sectionId: data.sectionId,
+                sectionId: batch.sectionId.toString(),
                 periodId,
                 quantityKg: data.quantityKg,
                 totalCost,
@@ -84,10 +91,10 @@ export class FeedService {
     }
 
     /**
-     * Get deliveries by section
+     * Get deliveries by batch
      */
-    static async getDeliveriesBySection(sectionId: string): Promise<IFeedDelivery[]> {
-        return FeedDelivery.find({ sectionId })
+    static async getDeliveriesByBatch(batchId: string): Promise<IFeedDelivery[]> {
+        return FeedDelivery.find({ batchId })
             .populate('deliveredBy', 'fullName username')
             .sort({ deliveredAt: -1 });
     }
@@ -97,7 +104,7 @@ export class FeedService {
      */
     static async getDeliveriesByPeriod(periodId: string): Promise<IFeedDelivery[]> {
         return FeedDelivery.find({ periodId })
-            .populate('sectionId', 'name')
+            .populate('batchId', 'name')
             .populate('deliveredBy', 'fullName username')
             .sort({ deliveredAt: -1 });
     }
@@ -123,16 +130,11 @@ export class FeedService {
     }
 
     /**
-     * Get section feed summary
+     * Get batch feed summary
      */
-    static async getSectionFeedSummary(sectionId: string, periodId?: string): Promise<{ totalKg: number; totalCost: number; deliveryCount: number }> {
-        const filter: any = { sectionId: new mongoose.Types.ObjectId(sectionId) };
-        if (periodId) {
-            filter.periodId = new mongoose.Types.ObjectId(periodId);
-        }
-
+    static async getBatchFeedSummary(batchId: string): Promise<{ totalKg: number; totalCost: number; deliveryCount: number }> {
         const result = await FeedDelivery.aggregate([
-            { $match: filter },
+            { $match: { batchId: new mongoose.Types.ObjectId(batchId) } },
             {
                 $group: {
                     _id: null,

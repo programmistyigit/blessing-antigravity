@@ -11,15 +11,18 @@ export enum UtilityType {
 
 /**
  * Utility Cost Interface
- * Kommunal xarajatlar (suv, elektr)
+ * Kommunal xarajatlar (suv, elektr, gaz)
+ * batchId = partiyaga tegishli
+ * sectionId = null va batchId = null bo'lsa, office/umumiy xarajat
  */
 export interface IUtilityCost extends Document {
     type: UtilityType;
-    sectionId?: Types.ObjectId;  // null = office/general
+    batchId?: Types.ObjectId;     // partiyaga tegishli bo'lsa
+    sectionId?: Types.ObjectId;   // legacy - deprecated, use batchId
     periodId: Types.ObjectId;
     amount: number;
-    quantity?: number;           // litr yoki kWh
-    unitCost?: number;           // so'm/litr yoki so'm/kWh
+    quantity?: number;            // litr yoki kWh
+    unitCost?: number;            // so'm/litr yoki so'm/kWh
     date: Date;
     createdBy: Types.ObjectId;
     expenseId?: Types.ObjectId;
@@ -33,6 +36,11 @@ const utilityCostSchema = new Schema<IUtilityCost>(
             type: String,
             enum: Object.values(UtilityType),
             required: true,
+        },
+        batchId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Batch',
+            default: null,
         },
         sectionId: {
             type: Schema.Types.ObjectId,

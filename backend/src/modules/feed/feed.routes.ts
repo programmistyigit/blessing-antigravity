@@ -13,10 +13,10 @@ export async function feedRoutes(fastify: FastifyInstance) {
         preHandler: [requirePermission(Permission.FEED_MANAGE)]
     }, FeedController.recordDelivery);
 
-    // Get deliveries by section (FEED_MANAGE or SECTION_VIEW)
+    // Get deliveries by batch (FEED_MANAGE)
     fastify.get('/feed/deliveries', {
         preHandler: [requirePermission(Permission.FEED_MANAGE)]
-    }, FeedController.getDeliveriesBySection);
+    }, FeedController.getDeliveriesByBatch);
 
     // Get deliveries by period (FEED_MANAGE)
     fastify.get('/feed/deliveries/period', {
@@ -28,8 +28,8 @@ export async function feedRoutes(fastify: FastifyInstance) {
         preHandler: [requirePermission(Permission.FEED_MANAGE)]
     }, FeedController.getPeriodFeedTotal);
 
-    // Get section feed summary (FEED_MANAGE)
-    fastify.get('/feed/sections/:sectionId/summary', {
+    // Get batch feed summary (FEED_MANAGE)
+    fastify.get('/feed/batches/:batchId/summary', {
         preHandler: [requirePermission(Permission.FEED_MANAGE)]
-    }, FeedController.getSectionFeedSummary);
+    }, FeedController.getBatchFeedSummary);
 }

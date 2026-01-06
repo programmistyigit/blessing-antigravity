@@ -7,18 +7,14 @@ export interface IMedicine {
 
 /**
  * Batch Daily Report Interface
- * Kunlik hisobot endi Batch ga bog'lanadi
+ * Faqat jo'ja holati uchun - o'lim, vazn, dori
+ * Yem, suv, tok, gaz alohida modellarda
  */
 export interface IBatchDailyReport extends Document {
     batchId: Types.ObjectId;
     date: Date;
-    avgWeight: number;
-    totalWeight: number;
     deaths: number;
-    feedUsedKg: number;
-    waterUsedLiters: number;
-    electricityUsedKwh: number;
-    gasM3?: number;  // Optional - gaz sarfi (m³)
+    avgWeight: number;
     medicines: IMedicine[];
     notes?: string;
     createdBy: Types.ObjectId;
@@ -42,41 +38,15 @@ const reportSchema = new Schema<IBatchDailyReport>(
             type: Date,
             required: true,
         },
-        avgWeight: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-        totalWeight: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
         deaths: {
             type: Number,
             required: true,
             min: 0,
         },
-        feedUsedKg: {
+        avgWeight: {
             type: Number,
             required: true,
             min: 0,
-        },
-        waterUsedLiters: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-        electricityUsedKwh: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-        gasM3: {
-            type: Number,
-            required: false,
-            min: 0,
-            default: null,
         },
         medicines: [medicineSchema],
         notes: {

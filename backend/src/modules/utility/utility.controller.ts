@@ -8,7 +8,7 @@ export class UtilityController {
      */
     static async recordCost(request: FastifyRequest, reply: FastifyReply) {
         try {
-            const { type, sectionId, periodId, amount, quantity, unitCost, date, notes } = request.body as any;
+            const { type, sectionId, batchId, periodId, amount, quantity, unitCost, date, notes } = request.body as any;
             const userId = (request as any).user?.id;
 
             if (!type || !periodId || !amount) {
@@ -32,6 +32,7 @@ export class UtilityController {
             const utilityCost = await UtilityService.recordCost({
                 type,
                 sectionId,
+                batchId,
                 periodId,
                 amount,
                 quantity,
@@ -77,6 +78,24 @@ export class UtilityController {
             }
 
             const costs = await UtilityService.getCostsBySection(sectionId, type);
+            return reply.send(costs);
+        } catch (error: any) {
+            return reply.status(500).send({ error: error.message });
+        }
+    }
+
+    /**
+     * Get costs by batch
+     */
+    static async getCostsByBatch(request: FastifyRequest, reply: FastifyReply) {
+        try {
+            const { batchId, type } = request.query as { batchId: string; type?: UtilityType };
+
+            if (!batchId) {
+                return reply.status(400).send({ error: 'batchId query param is required' });
+            }
+
+            const costs = await UtilityService.getCostsByBatch(batchId, type);
             return reply.send(costs);
         } catch (error: any) {
             return reply.status(500).send({ error: error.message });

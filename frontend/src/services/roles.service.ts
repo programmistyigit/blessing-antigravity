@@ -4,7 +4,7 @@ import api, { type ApiResponse } from '@/lib/api';
  * Role Types - matching backend response
  */
 export interface Role {
-    id: string;
+    _id: string;
     name: string;
     permissions: string[];
     canCreateUsers: boolean;

@@ -24,6 +24,7 @@ export interface UtilityCost {
 export interface RecordUtilityPayload {
     type: UtilityType;
     sectionId?: string;
+    batchId?: string;
     periodId: string;
     amount: number;
     quantity?: number;
@@ -67,6 +68,17 @@ export async function getUtilityCostsBySection(sectionId: string, type?: Utility
     const params = new URLSearchParams({ sectionId });
     if (type) params.append('type', type);
     const response = await api.get<ApiResponse<UtilityCost[]>>(`/utilities/section?${params.toString()}`);
+    return response.data.data;
+}
+
+/**
+ * GET /api/utilities/batch?batchId=xxx&type=xxx
+ * Permission: WATER_REPORT
+ */
+export async function getUtilityCostsByBatch(batchId: string, type?: UtilityType): Promise<UtilityCost[]> {
+    const params = new URLSearchParams({ batchId });
+    if (type) params.append('type', type);
+    const response = await api.get<ApiResponse<UtilityCost[]>>(`/utilities/batch?${params.toString()}`);
     return response.data.data;
 }
 

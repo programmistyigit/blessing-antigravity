@@ -1,7 +1,7 @@
 import api, { type ApiResponse } from '@/lib/api';
 
 /**
- * Daily Report Types - matching backend response
+ * Daily Report Types - faqat jo'ja holati
  */
 export interface Medicine {
     name: string;
@@ -13,13 +13,8 @@ export interface DailyReport {
     id?: string;
     batchId: string;
     date: string;
-    avgWeight: number;
-    totalWeight: number;
     deaths: number;
-    feedUsedKg: number;
-    waterUsedLiters: number;
-    electricityUsedKwh: number;
-    gasM3: number | null;
+    avgWeight: number;
     medicines: Medicine[];
     notes: string;
     createdBy: string;
@@ -29,25 +24,15 @@ export interface DailyReport {
 
 export interface CreateReportPayload {
     date: string;
-    avgWeight: number;
-    totalWeight: number;
     deaths: number;
-    feedUsedKg: number;
-    waterUsedLiters: number;
-    electricityUsedKwh: number;
-    gasM3?: number | null;
+    avgWeight: number;
     medicines?: Medicine[];
     note?: string;
 }
 
 export interface UpdateReportPayload {
-    avgWeight?: number;
-    totalWeight?: number;
     deaths?: number;
-    feedUsedKg?: number;
-    waterUsedLiters?: number;
-    electricityUsedKwh?: number;
-    gasM3?: number | null;
+    avgWeight?: number;
     medicines?: Medicine[];
     note?: string;
 }
@@ -58,6 +43,15 @@ export interface UpdateReportPayload {
  */
 export async function getSectionReports(sectionId: string): Promise<DailyReport[]> {
     const response = await api.get<ApiResponse<DailyReport[]>>(`/sections/${sectionId}/reports`);
+    return response.data.data;
+}
+
+/**
+ * GET /api/batches/:id/reports
+ * Permission: SECTION_DAILY_REPORT_VIEW
+ */
+export async function getBatchReports(batchId: string): Promise<DailyReport[]> {
+    const response = await api.get<ApiResponse<DailyReport[]>>(`/batches/${batchId}/reports`);
     return response.data.data;
 }
 

@@ -3,6 +3,7 @@ import {
     recordUtilityCost,
     getUtilityCostsByPeriod,
     getUtilityCostsBySection,
+    getUtilityCostsByBatch,
     getUtilitySummary,
     type UtilityCost,
     type UtilityType,
@@ -23,6 +24,9 @@ export function useRecordUtilityCost() {
             queryClient.invalidateQueries({ queryKey: ['utility-summary', variables.periodId] });
             if (variables.sectionId) {
                 queryClient.invalidateQueries({ queryKey: ['utilities', 'section', variables.sectionId] });
+            }
+            if (variables.batchId) {
+                queryClient.invalidateQueries({ queryKey: ['utilities', 'batch', variables.batchId] });
             }
         },
     });
@@ -48,6 +52,18 @@ export function useUtilityCostsBySection(sectionId: string | undefined, type?: U
         queryKey: ['utilities', 'section', sectionId, type],
         queryFn: () => getUtilityCostsBySection(sectionId!, type),
         enabled: !!sectionId,
+        staleTime: 30 * 1000,
+    });
+}
+
+/**
+ * Hook for fetching utility costs by batch
+ */
+export function useUtilityCostsByBatch(batchId: string | undefined, type?: UtilityType) {
+    return useQuery<UtilityCost[], Error>({
+        queryKey: ['utilities', 'batch', batchId, type],
+        queryFn: () => getUtilityCostsByBatch(batchId!, type),
+        enabled: !!batchId,
         staleTime: 30 * 1000,
     });
 }

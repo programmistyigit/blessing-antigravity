@@ -7,3 +7,5 @@ export * from './batches.service';
 export * from './periods.service';
 export * from './reports.service';
 export * from './utility.service';
+export * from './chickout.service';
+export * from './feed.service';

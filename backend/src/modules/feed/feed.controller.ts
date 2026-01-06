@@ -7,12 +7,12 @@ export class FeedController {
      */
     static async recordDelivery(request: FastifyRequest, reply: FastifyReply) {
         try {
-            const { sectionId, quantityKg, pricePerKg, deliveredAt, notes } = request.body as any;
+            const { batchId, quantityKg, pricePerKg, deliveredAt, notes } = request.body as any;
             const userId = (request as any).user?.id;
 
-            if (!sectionId || !quantityKg || !pricePerKg) {
+            if (!batchId || !quantityKg || !pricePerKg) {
                 return reply.status(400).send({
-                    error: 'sectionId, quantityKg, and pricePerKg are required'
+                    error: 'batchId, quantityKg, and pricePerKg are required'
                 });
             }
 
@@ -23,7 +23,7 @@ export class FeedController {
             }
 
             const delivery = await FeedService.recordDelivery({
-                sectionId,
+                batchId,
                 quantityKg,
                 pricePerKg,
                 deliveredAt: deliveredAt ? new Date(deliveredAt) : undefined,
@@ -38,17 +38,17 @@ export class FeedController {
     }
 
     /**
-     * Get deliveries by section
+     * Get deliveries by batch
      */
-    static async getDeliveriesBySection(request: FastifyRequest, reply: FastifyReply) {
+    static async getDeliveriesByBatch(request: FastifyRequest, reply: FastifyReply) {
         try {
-            const { sectionId } = request.query as { sectionId: string };
+            const { batchId } = request.query as { batchId: string };
 
-            if (!sectionId) {
-                return reply.status(400).send({ error: 'sectionId query param is required' });
+            if (!batchId) {
+                return reply.status(400).send({ error: 'batchId query param is required' });
             }
 
-            const deliveries = await FeedService.getDeliveriesBySection(sectionId);
+            const deliveries = await FeedService.getDeliveriesByBatch(batchId);
             return reply.send(deliveries);
         } catch (error: any) {
             return reply.status(500).send({ error: error.message });
@@ -88,14 +88,13 @@ export class FeedController {
     }
 
     /**
-     * Get section feed summary
+     * Get batch feed summary
      */
-    static async getSectionFeedSummary(request: FastifyRequest, reply: FastifyReply) {
+    static async getBatchFeedSummary(request: FastifyRequest, reply: FastifyReply) {
         try {
-            const { sectionId } = request.params as { sectionId: string };
-            const { periodId } = request.query as { periodId?: string };
+            const { batchId } = request.params as { batchId: string };
 
-            const summary = await FeedService.getSectionFeedSummary(sectionId, periodId);
+            const summary = await FeedService.getBatchFeedSummary(batchId);
             return reply.send(summary);
         } catch (error: any) {
             return reply.status(500).send({ error: error.message });

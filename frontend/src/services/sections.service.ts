@@ -83,3 +83,36 @@ export async function updateSection(id: string, payload: UpdateSectionPayload): 
 export async function assignWorkersToSection(sectionId: string, workerIds: string[]): Promise<void> {
     await api.post(`/sections/${sectionId}/assign-workers`, { workerIds });
 }
+/**
+ * Section P&L Metrics Interface
+ */
+export interface SectionPLMetrics {
+    costPerAliveChick: number | null;
+    revenuePerSoldChick: number | null;
+    profitPerSoldChick: number | null;
+    aliveChicks: number;
+    soldChicks: number;
+    deadChicks: number;
+}
+
+/**
+ * Section P&L Interface
+ */
+export interface SectionPL {
+    sectionId: string;
+    sectionName: string;
+    totalRevenue: number;
+    totalExpenses: number;
+    profit: number;
+    isProfitable: boolean;
+    metrics: SectionPLMetrics;
+}
+
+/**
+ * GET /api/sections/:id/pl
+ * Permission: SECTION_VIEW
+ */
+export async function getSectionPL(id: string): Promise<SectionPL> {
+    const response = await api.get<ApiResponse<SectionPL>>(`/sections/${id}/pl`);
+    return response.data.data;
+}
